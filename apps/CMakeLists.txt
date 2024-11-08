@@ -1,4 +1,4 @@
-add_executable(app app.cpp)
-target_compile_features(app PRIVATE cxx_std_17)
+add_executable(cynocompiler cynocompiler.cpp)
+target_compile_features(cynocompiler PRIVATE cxx_std_11)
 
-target_link_libraries(app PRIVATE modern_library fmt::fmt)
+target_link_libraries(cynocompiler PRIVATE cynolexer fmt::fmt)
