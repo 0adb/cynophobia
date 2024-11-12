@@ -21,7 +21,7 @@ filename=$1
 shift 
 
 opt_short="S"
-opt_long="lex,parse,codegen"
+opt_long="lex,parse,codegen,verbose"
 
 OPTS=$(getopt -o "$opt_short" -l "$opt_long" -- "$@")
 
@@ -48,7 +48,7 @@ do
         --lex) lex=1; flag="--lex"; shift ;;
         --parse) parse=1; flag="--parse"; shift;;
         --codegen) codegen=1; flag="--codegen"; shift;;
-        --verbose) verbose=true ;;
+        --verbose) verbose=true; shift ;;
         --) break ;;
     esac
 done
