@@ -1,6 +1,7 @@
 #pragma once
 #include <cynophobia/shared.hpp>
 
-void lex(
+LexerOutput lex(
     const Config& config
 );
+

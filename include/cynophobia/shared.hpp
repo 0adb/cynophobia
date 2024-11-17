@@ -1,10 +1,60 @@
-
-#include <string>
 #pragma once 
+#include <string>
+#include <vector>
+#include <sstream>
 
-enum Target { lex_stage, parse_stage, codegen_stage, link_stage };
+//// Cross-cutting
+
+enum Target { LexStage, ParseStage, CodegenStage, LinkStage };
 
 struct Config {
     std::string filename; 
-    bool verbose;
+    bool debug;
+};
+
+//// Lexing-related 
+struct FilePosition {
+    unsigned int line; 
+    unsigned int column;
+    std::string debug_string() const;
+    FilePosition next_column();
+    FilePosition start_next_line();
+};
+
+struct Token {
+        // [a-zA-Z_] means any a to z character, A to Z character, or an underscore 
+    // \w is [a-zA-Z0-9_]
+    // \b is a word boundary, i.e. between a \w and a not \w 
+    // \( and \) are literal parentheses
+    enum TokenType {
+        Identifier,   // [a-zA-Z_]\w*\b
+        Constant,     // [0-9]+\b
+        Int,          // int\b 
+        Void,         // void\b 
+        Return,       // return\b
+        OpenParen,    // \(
+        CloseParen,   // \)
+        OpenBrace,    // \{
+        CloseBrace,   // \}
+        Semicolon,    //  ;
+    };
+
+    FilePosition position;
+    std::string  text; 
+    TokenType    token_type; 
+    std::string debug_string() const;
+};
+
+struct UnknownToken {
+    FilePosition position; 
+    std::string  text; 
+    std::string debug_string() const;
+};
+
+struct LexerOutput {
+    std::vector<Token> tokens; 
+    std::vector<UnknownToken> unknown_tokens; 
+    bool read_failed;
+    bool open_failed;
+    std::string debug_string() const; 
 };
