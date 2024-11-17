@@ -2,8 +2,8 @@
 
 # Function to display usage instructions
 usage() {
-    echo "Usage: $0 /path/to/program.c [-S | --lex | --parse | --codegen]"
-    echo "      [ --debug ] "
+    echo "Usage: $0 [-S | --lex | --parse | --codegen] [ --debug ] "
+    echo "         /path/to/program.c" 
     echo "  -S assembly generation without linking"
     echo "  --lex lexing, stop before parsing"
     echo "  --parse lexing and parsing, stop before code generation"
@@ -18,8 +18,8 @@ if [ $# -lt 1 ]; then
 fi
 
 # Assign the filename to a variable
-filename=$1
-shift 
+filename=${!#}
+set -- "${@:1:$(($#-1))}"
 
 opt_short="S"
 opt_long="lex,parse,codegen,debug"
@@ -74,17 +74,24 @@ if [ $? -ne 0 ]; then
     exit $?
 fi
 
-if [ ! -f "cynocompiler" ]; then
+# Bash and relative path business
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+
+AUX_FILE="$SCRIPT_DIR/cynocompiler"
+echo "AUX FILE: $AUX_FILE" 
+
+if [ ! -f "$AUX_FILE" ]; then
     echo "Error: Main compiler expected as filename 'cynocompiler' in same directory.";
     usage; 
     exit 1
 fi
 
 if $debug; then
-    ./cynocompiler $preprocess_file --debug $flag
+    $AUX_FILE $preprocess_file --debug $flag
 else
-    ./cynocompiler $preprocess_file $flag 
+    $AUX_FILE $preprocess_file $flag 
 fi
+
 
 compile_code=$?
 rm $preprocess_file

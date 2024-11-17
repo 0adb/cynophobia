@@ -56,12 +56,13 @@ int main(int argc, char* argv[]) {
         if (debug) {
             printf("%s: error: file open failed\n", config.filename.c_str());
         } 
-        return 1;
+        
+        return 255;
     } else if (lexer_output.read_failed) {
         if (debug) {
             printf("%s: error: reading file filed\n", config.filename.c_str());
         } 
-        return 1;
+        return 254;
     } else if (lexer_output.unknown_tokens.size() != 0) {
         if (debug) {
             for (const UnknownToken& u: lexer_output.unknown_tokens) {
@@ -71,7 +72,7 @@ int main(int argc, char* argv[]) {
                   u.text.c_str());
             }   
         }
-        return 1;
+        return 253;
     }
     return 0;
 }

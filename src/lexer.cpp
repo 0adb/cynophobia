@@ -109,6 +109,16 @@ std::unordered_set<char> charset_digits()
     return res; 
 }
 
+bool all_digits(std::string s) {
+    auto digit_chars = charset_digits(); 
+    for (const char& c : s) {
+        if (digit_chars.find(c) == digit_chars.end()) {
+            return false;
+        }
+    }
+    return true; 
+}
+
 std::unordered_set<char> charset_wordchars() 
 {
     auto base = charset_digits();
@@ -121,6 +131,8 @@ std::unordered_set<char> charset_wordchars()
     }
     return base; 
 }
+
+
 
 LexerOutput lex(const Config& config) { 
 
@@ -174,18 +186,15 @@ LexerOutput lex(const Config& config) {
                 tokens.push_back( {next_position, token_text, Token::Semicolon });
                 break; 
             }
-
+            
             // whitespace characters 
-            case '\n':
-            case '\r': 
-            case '\v':
-            case '\f':
-            case ' ':
-            case '\t':
-                // Intentionally do nothing. Whitespace isn't
-                // a recognized token but is allowed (to separate 
-                // tokens, etc.). 
-                break;
+            case '\n': break;
+            case '\r': break;
+            case '\v': break;
+            case '\f': break;
+            case ' ':  break;
+            case '\t': break; 
+                
 
             // non-range-check alphabetic characters
             case '_': {
@@ -199,7 +208,8 @@ LexerOutput lex(const Config& config) {
                     extra_getchars_exit = true; 
                 }
                 taken_wordchars.insert(taken_wordchars.begin(), next_char); 
-                tokens.push_back( { next_position, taken_wordchars, Token::Identifier });
+                tokens.push_back({ next_position, taken_wordchars,
+                 Token::Identifier });
                 break; 
             }
             // maybe-alphabetic characters
@@ -234,19 +244,25 @@ LexerOutput lex(const Config& config) {
                     tokens.push_back({ next_position, taken_wordchars, token_type });
                     break; 
                 } else if ( '0' <= next_char && next_char <= '9') {
-                    PositionedFileStream::FileReadResult take_digitchars_result; 
-                    std::string taken_digitchars; 
-                    std::tie(take_digitchars_result, taken_digitchars) 
-                        = pfs.get_while_in(digitchars);
-                    if (take_digitchars_result !=
+                    PositionedFileStream::FileReadResult take_wordchars_result; 
+                    std::string taken_wordchars; 
+                    std::tie(take_wordchars_result, taken_wordchars) 
+                        = pfs.get_while_in(wordchars);
+                    if (take_wordchars_result !=
                       PositionedFileStream::GOOD_READ) {
-                        read_failed = (take_digitchars_result ==
+                        read_failed = (take_wordchars_result ==
                         PositionedFileStream::READ_ERROR); 
                         extra_getchars_exit = true; 
                     }
-                    taken_digitchars.insert(
-                        taken_digitchars.begin(), next_char);  
-                    tokens.push_back({next_position, taken_digitchars, Token::Constant});
+                    taken_wordchars.insert(
+                        taken_wordchars.begin(), next_char);  
+                    if (all_digits(taken_wordchars)) { 
+                        tokens.push_back({next_position, taken_wordchars,
+                         Token::Constant});
+                    } else {
+                        unknown_tokens.push_back({next_position, taken_wordchars
+                        });
+                    }
                     break; 
                 } else {
 

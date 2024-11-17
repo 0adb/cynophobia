@@ -1,11 +1,10 @@
-This is an example project using CMake.
+
 
 The requirements are:
 
 - CMake 3.14+
 - A C++11 compatible compiler 
-- Git
-- Doxygen (optional)
+- Git 
 
 To configure:
 
@@ -26,3 +25,9 @@ cd tests
 ./cynotestlib --reporter compact --success
 ```
 
+
+------
+Current progress: 
+tests in https://github.com/nlsandler/writing-a-c-compiler-tests/ 
+[+] passes chapter 1, lexer
+[ ] passes chapter 1, rest of stages
