@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     }
 
     const Config& config = { filename, debug };
-    LexerOutput lexer_output = lex(config);
+    LexerOutput lexer_output = lex_file(config);
     if (lexer_output.open_failed) {
         if (debug) {
             printf("%s: error: file open failed\n", config.filename.c_str());
