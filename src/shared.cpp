@@ -22,11 +22,19 @@ FilePosition FilePosition::start_next_line() {
     return { line + 1, 0 }; 
 }
 
-std::string Token::debug_string() const  {
+std::string Token::debug_string(const std::vector<std::string>& texts) const  {
     std::ostringstream oss;
     oss << "position: " << position.debug_string() << "\n";
-    oss << "text: " << text << "\n";
-    oss << "token_type: ";
+    auto it = Token::sole_value.find(token_type); 
+    oss << "text: ";
+    if (it == Token::sole_value.end()) {
+        oss << texts[text_index];
+    } else {
+        oss << it->second; 
+    }
+
+
+    oss << "\ntoken_type: ";
     std::unordered_map<Token::TokenType, std::string> lookup = 
         {
             {Identifier, "Identifier"},
@@ -40,11 +48,11 @@ std::string Token::debug_string() const  {
             {CloseBrace, "CloseBrace"},
             {Semicolon, "Semicolon"},
         };
-    auto it = lookup.find(token_type);
-    if (it == lookup.end()) {
+    auto it2 = lookup.find(token_type);
+    if (it2 == lookup.end()) {
         oss << "<unknown>";
     } else {
-        oss << it->second; 
+        oss << it2->second; 
     }
     oss << "\n";
     return oss.str();
@@ -65,7 +73,7 @@ std::string LexerOutput::debug_string() const {
     oss << "read_failed: " << (read_failed ? "true" : "false") << "\n";
     oss << "tokens: \n";
     for (const Token& t : tokens) {
-        oss << t.debug_string();
+        oss << t.debug_string(texts);
     }
     oss << "unknown tokens: \n";
     for (const UnknownToken& u : unknown_tokens) {

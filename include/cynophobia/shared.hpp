@@ -1,7 +1,8 @@
 #pragma once 
-#include <string>
-#include <vector>
 #include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 //// Cross-cutting
 
@@ -40,10 +41,21 @@ struct Token {
     };
 
     FilePosition position;
-    std::string  text; 
-    TokenType    token_type; 
-    std::string debug_string() const;
+    size_t       text_index; 
+    TokenType    token_type;  
+    std::string debug_string(const std::vector<std::string> &texts) const;
+    const std::unordered_map<Token::TokenType, const char*> sole_value =
+    { { Token::Int, "int" }, 
+    { Token::Void, "void" }, 
+    { Token::Return, "return" }, 
+    { Token::OpenParen, "("}, 
+    { Token::CloseParen, ")"}, 
+    { Token::OpenBrace, "{" },
+    { Token::CloseBrace, "}" }, 
+    { Token::Semicolon, ";" } };
 };
+
+
 
 struct UnknownToken {
     FilePosition position; 
@@ -52,9 +64,10 @@ struct UnknownToken {
 };
 
 struct LexerOutput {
-    std::vector<Token> tokens; 
-    std::vector<UnknownToken> unknown_tokens; 
-    bool read_failed;
-    bool open_failed;
+    const std::vector<std::string> texts; 
+    const std::vector<Token> tokens; 
+    const std::vector<UnknownToken> unknown_tokens; 
+    const bool read_failed;
+    const bool open_failed;
     std::string debug_string() const; 
 };

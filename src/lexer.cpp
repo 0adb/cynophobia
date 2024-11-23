@@ -239,6 +239,7 @@ LexerOutput lex(FallibleCharStream& fcs, bool debug) {
     bool was_open = fcs.was_opened();
     PositionedStream pfs(fcs); 
 
+    std::vector<std::string> texts = {}; 
     std::vector<Token> tokens = {};
     std::vector<UnknownToken> unknown_tokens = {};
 
@@ -247,6 +248,7 @@ LexerOutput lex(FallibleCharStream& fcs, bool debug) {
 
     bool read_failed = false;
     if (was_open) {
+        const size_t UNEXPECTED_INDEX = (size_t)-1; 
         while (true) {  
             bool extra_getchars_exit = false; 
             FallibleCharStream::StreamStatus next_status;
@@ -262,28 +264,24 @@ LexerOutput lex(FallibleCharStream& fcs, bool debug) {
             switch (next_char) {
                 // non-alphabetic characters
                 case '(': {
-                    std::string token_text(1, next_char);
-                    tokens.push_back( {next_position, token_text, Token::OpenParen});
+                    tokens.push_back( {next_position, UNEXPECTED_INDEX, Token::OpenParen});
                     break; 
                 }
-                case ')': {
-                    std::string token_text(1, next_char);
-                    tokens.push_back( {next_position, token_text, Token::CloseParen});
+                case ')': { 
+                    tokens.push_back( {next_position, UNEXPECTED_INDEX, Token::CloseParen});
                     break; 
                 }
-                case '{': {
-                    std::string token_text(1, next_char);
-                    tokens.push_back( {next_position, token_text, Token::OpenBrace});
+                case '{': { 
+                    tokens.push_back( {next_position, UNEXPECTED_INDEX, Token::OpenBrace});
                     break; 
                 }
                 case '}': {
                     std::string token_text(1, next_char);
-                    tokens.push_back( {next_position, token_text, Token::CloseBrace});
+                    tokens.push_back( {next_position, UNEXPECTED_INDEX, Token::CloseBrace});
                     break;
                 }
-                case ';': {
-                    std::string token_text(1, next_char);
-                    tokens.push_back( {next_position, token_text, Token::Semicolon });
+                case ';': { 
+                    tokens.push_back( {next_position, UNEXPECTED_INDEX, Token::Semicolon });
                     break; 
                 }
                 
@@ -306,10 +304,13 @@ LexerOutput lex(FallibleCharStream& fcs, bool debug) {
                         read_failed = (take_wordchars_result ==
                         FallibleCharStream::STREAM_ERROR); 
                         extra_getchars_exit = true; 
+                    } else {
+                        taken_wordchars.insert(taken_wordchars.begin(), next_char); 
+                        size_t index = texts.size(); 
+                        texts.push_back(taken_wordchars); 
+                        tokens.push_back({ next_position, index, 
+                        Token::Identifier });
                     }
-                    taken_wordchars.insert(taken_wordchars.begin(), next_char); 
-                    tokens.push_back({ next_position, taken_wordchars,
-                    Token::Identifier });
                     break; 
                 }
                 // maybe-alphabetic characters
@@ -339,9 +340,13 @@ LexerOutput lex(FallibleCharStream& fcs, bool debug) {
                         auto keyword_it = keyword_tokens.find(taken_wordchars);
                         if (keyword_it != keyword_tokens.end()) {
                             token_type = keyword_it->second; 
+                            tokens.push_back( { next_position, UNEXPECTED_INDEX, token_type }); 
+                        } else { 
+                            size_t index = texts.size(); 
+                            texts.push_back(taken_wordchars); 
+                            tokens.push_back ( { next_position, index, token_type });  
                         }
-
-                        tokens.push_back({ next_position, taken_wordchars, token_type });
+                    
                         break; 
                     } else if ( '0' <= next_char && next_char <= '9') {
                         FallibleCharStream::StreamStatus take_wordchars_result; 
@@ -357,7 +362,9 @@ LexerOutput lex(FallibleCharStream& fcs, bool debug) {
                         taken_wordchars.insert(
                             taken_wordchars.begin(), next_char);  
                         if (all_digits(taken_wordchars)) { 
-                            tokens.push_back({next_position, taken_wordchars,
+                            size_t index = texts.size(); 
+                            texts.push_back(taken_wordchars); 
+                            tokens.push_back({next_position, index,
                             Token::Constant});
                         } else {
                             unknown_tokens.push_back({next_position, taken_wordchars
@@ -380,7 +387,7 @@ LexerOutput lex(FallibleCharStream& fcs, bool debug) {
         }
     }
 
-    LexerOutput output = { tokens, unknown_tokens, read_failed, !was_open };
+    LexerOutput output = { texts, tokens, unknown_tokens, read_failed, !was_open };
     if (debug) { 
         printf("%s", output.debug_string().c_str());
     }
