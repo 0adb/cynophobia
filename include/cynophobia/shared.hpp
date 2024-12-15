@@ -1,4 +1,5 @@
 #pragma once 
+
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -40,20 +41,12 @@ struct Token {
         Semicolon,    //  ;
     };
 
-    FilePosition position;
-    size_t       text_index; 
+    FilePosition position; 
+    std::string  text;
     TokenType    token_type;  
-    std::string debug_string(const std::vector<std::string> &texts) const;
-    const std::unordered_map<Token::TokenType, const char*> sole_value =
-    { { Token::Int, "int" }, 
-    { Token::Void, "void" }, 
-    { Token::Return, "return" }, 
-    { Token::OpenParen, "("}, 
-    { Token::CloseParen, ")"}, 
-    { Token::OpenBrace, "{" },
-    { Token::CloseBrace, "}" }, 
-    { Token::Semicolon, ";" } };
+    std::string debug_string() const; 
 };
+
 
 
 
@@ -63,8 +56,7 @@ struct UnknownToken {
     std::string debug_string() const;
 };
 
-struct LexerOutput {
-    const std::vector<std::string> texts; 
+struct LexerOutput { 
     const std::vector<Token> tokens; 
     const std::vector<UnknownToken> unknown_tokens; 
     const bool read_failed;

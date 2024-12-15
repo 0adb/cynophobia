@@ -1,16 +1,13 @@
 #include <cynophobia/shared.hpp>
-#include <unordered_map> 
-#include <string> 
+
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 std::string FilePosition::debug_string() const {
-    // auto fmt = "line: %d, column: %d";
-    // int sz = std::snprintf(nullptr, 0, fmt, line, column);
-    // std::vector<char> buf(sz + 1); // note +1 for null terminator
-    // std::sprintf(buf.data(), fmt, line, column);
-    // std::string s(buf.begin(), buf.end());
-    // return s; 
     std::ostringstream oss;
-    oss << line << ":" << column;
+    oss << "{'line': " << line << ", 'column': " << column << "}";
     return oss.str();
 }
 
@@ -22,62 +19,67 @@ FilePosition FilePosition::start_next_line() {
     return { line + 1, 0 }; 
 }
 
-std::string Token::debug_string(const std::vector<std::string>& texts) const  {
+std::string Token::debug_string() const  {
     std::ostringstream oss;
-    oss << "position: " << position.debug_string() << "\n";
-    auto it = Token::sole_value.find(token_type); 
-    oss << "text: ";
-    if (it == Token::sole_value.end()) {
-        oss << texts[text_index];
-    } else {
-        oss << it->second; 
-    }
-
-
-    oss << "\ntoken_type: ";
-    std::unordered_map<Token::TokenType, std::string> lookup = 
-        {
-            {Identifier, "Identifier"},
-            {Constant, "Constant"},
-            {Int, "Int"},
-            {Void, "Void"},
-            {Return, "Return"},
-            {OpenParen, "OpenParen"},
-            {CloseParen, "CloseParen"},
-            {OpenBrace, "OpenBrace"},
-            {CloseBrace, "CloseBrace"},
-            {Semicolon, "Semicolon"},
-        };
-    auto it2 = lookup.find(token_type);
-    if (it2 == lookup.end()) {
-        oss << "<unknown>";
-    } else {
-        oss << it2->second; 
-    }
-    oss << "\n";
+    oss << "{'position': " << position.debug_string();
+    oss << ", 'text': \"" << text << "\"," ;
+    oss << "'token_type': ";
+    switch (token_type) { 
+#define SELF_PRINT(x)            \
+case x:                          \
+    oss << "'" << #x << "'";     \
+    break;
+        SELF_PRINT(Semicolon)
+        SELF_PRINT(Identifier)
+        SELF_PRINT(Constant) 
+        SELF_PRINT(Int)
+        SELF_PRINT(Void) 
+        SELF_PRINT(Return)
+        SELF_PRINT(OpenParen)    
+        SELF_PRINT(CloseParen)  
+        SELF_PRINT(OpenBrace)  
+        SELF_PRINT(CloseBrace)
+    }  
+#undef SELF_PRINT
+    oss << "}";
     return oss.str();
 }
 
 
 std::string UnknownToken::debug_string() const {
     std::ostringstream oss;
-    oss << "position: " << position.debug_string() << "\n";
-    oss << "text: " << text << "\n";
-    oss << "token_type: unknown\n";
+    oss << "{'position': " << position.debug_string();
+    oss << ",'text': '" << text << "'}"; 
     return oss.str();
 }
 
 std::string LexerOutput::debug_string() const {
     std::ostringstream oss;
-    oss << "open_failed: " << (open_failed ? "true" : "false") << "\n";
-    oss << "read_failed: " << (read_failed ? "true" : "false") << "\n";
-    oss << "tokens: \n";
-    for (const Token& t : tokens) {
-        oss << t.debug_string(texts);
+    oss << "{'open_failed': " << (open_failed ? "true" : "false");
+    oss << ",'read_failed': " << (read_failed ? "true" : "false");
+    oss << ",'tokens':[";
+    {
+        bool first = true; 
+        for (const Token& t : tokens) {
+            if (!first) {
+                oss << ",";
+            }
+            oss << t.debug_string();
+            first = false; 
+        }
     }
-    oss << "unknown tokens: \n";
-    for (const UnknownToken& u : unknown_tokens) {
-        oss << u.debug_string();
+
+    oss << "],'unknown_tokens':[";
+    {
+        bool first = true;
+        for (const UnknownToken& u : unknown_tokens) {
+            if (!first) {
+                oss << ",";
+            }
+            oss << u.debug_string();
+            first = false;
+        }
     }
+    oss << "]}";
     return oss.str();
 }

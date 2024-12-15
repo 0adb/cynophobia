@@ -24,3 +24,8 @@ add_custom_command(
     COMMAND chmod u+x ${DRIVER_DESTINATION}driver.sh
     DEPENDS ${DRIVER_DESTINATION}driver.sh 
 )
+
+target_compile_options(cynocompiler PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
+)

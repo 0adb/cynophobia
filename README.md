@@ -22,7 +22,7 @@ cmake --build build
 To run the current test file (after build):
 ```bash
 cd tests
-./cynotestlib --reporter compact --success
+./cynotester
 ```
 
 
