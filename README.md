@@ -31,3 +31,8 @@ Current progress:
 tests in https://github.com/nlsandler/writing-a-c-compiler-tests/ 
 [+] passes chapter 1, lexer
 [ ] passes chapter 1, rest of stages
+
+
+------
+Concerns not addressed:
+unsure if sound with respect to memory safety of destructors

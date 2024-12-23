@@ -77,6 +77,7 @@ int main(int argc, char* argv[]) {
 
     if (target != LexStage) {
         printf("Stage not supported yet\n");
+        return 252; 
     }
     return 0;
 }

@@ -6,10 +6,12 @@ cmake_minimum_required(VERSION 3.14...3.30)
 project(
   Cynophobia
   VERSION 0.1
-  DESCRIPTION "A compiler for a subset of C"
+  DESCRIPTION "A compiler for a subset of C based on Nora Sandler's Writing a C Compiler"
   LANGUAGES CXX)
 
 include(FetchContent)
+
+
  
 add_subdirectory(src)
  

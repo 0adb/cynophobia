@@ -1,7 +1,11 @@
 #include <cynophobia/shared.hpp>
 
+#include <memory>
 #include <sstream>
 #include <string>
+#include <tuple>
+#include <utility>
+#include <unordered_set> 
 #include <unordered_map>
 #include <vector>
 
@@ -24,6 +28,9 @@ std::string Token::debug_string() const  {
     oss << "{'position': " << position.debug_string();
     oss << ", 'text': \"" << text << "\"," ;
     oss << "'token_type': ";
+
+
+
     switch (token_type) { 
 #define SELF_PRINT(x)            \
 case x:                          \
@@ -39,8 +46,9 @@ case x:                          \
         SELF_PRINT(CloseParen)  
         SELF_PRINT(OpenBrace)  
         SELF_PRINT(CloseBrace)
-    }  
 #undef SELF_PRINT
+    }  
+    
     oss << "}";
     return oss.str();
 }
