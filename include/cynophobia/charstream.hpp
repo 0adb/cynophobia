@@ -166,6 +166,7 @@ class PositionedStream {
             }
           }
 
+    
     private: 
         FallibleCharStream& fcstream;
         FilePosition next_char_position;

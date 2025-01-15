@@ -8,8 +8,7 @@ FetchContent_MakeAvailable(catch)
 
 # Tests need to be added as executables first
 add_executable(cynotester lexertest.cpp)
-
-# I'm using C++17 in the test
+ 
 target_compile_features(cynotester PRIVATE cxx_std_11)
 
 # Should be linked to the main library, as well as the Catch2 testing library

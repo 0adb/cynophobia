@@ -83,6 +83,12 @@ namespace parsing {
         union {
             parsing::IntConstant int_constant;
         };
+
+        Expression(parsing::IntConstant&& subtree) {
+            type = IntConstant;
+            new (&int_constant) parsing::IntConstant(std::move(subtree));
+        }
+        
         ~Expression() {
             switch (type) {
                 case IntConstant:
@@ -94,6 +100,7 @@ namespace parsing {
     struct ReturnStatement {
         Token return_token; 
         std::unique_ptr<Expression> expression;  
+        Token semicolon_token;
     };
 
     struct Statement {
@@ -102,6 +109,11 @@ namespace parsing {
         union {
             ReturnStatement statement_return;
         };
+
+        Statement(ReturnStatement&& subtree) {
+            type = Return;
+            new (&statement_return) ReturnStatement(std::move(subtree));
+        }
  
         ~Statement() {
             switch (type) {
@@ -149,6 +161,8 @@ struct ParserOutput {
             program.~unique_ptr(); 
         }
     }
+
+    
 };
 
 std::string debug_string(const ParserOutput::Error& error) {
